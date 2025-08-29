@@ -1,0 +1,2 @@
+../Core/Src/LM75ADP.c:40:19:LM75ADP_conf	1
+../Core/Src/LM75ADP.c:55:19:LM75ADP_read	3

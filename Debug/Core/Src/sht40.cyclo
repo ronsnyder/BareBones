@@ -1,0 +1,9 @@
+../Core/Src/sht40.c:65:19:SHT40_Measure	2
+../Core/Src/sht40.c:76:19:SHT40_Heat	2
+../Core/Src/sht40.c:87:19:SHT40_SoftReset	2
+../Core/Src/sht40.c:100:19:SHT40_ReadSerial	4
+../Core/Src/sht40.c:120:13:verify_checksum	1
+../Core/Src/sht40.c:132:26:i2c_communicate	3
+../Core/Src/sht40.c:145:26:read_temp_humidity	3
+../Core/Src/sht40.c:160:14:hardware_to_celsius	1
+../Core/Src/sht40.c:167:14:hardware_to_humidity_percentage	1
