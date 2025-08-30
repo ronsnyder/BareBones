@@ -25,6 +25,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <LM75ADP.h>
+#include <sht40.h>
+#include <bmp280.h>
 
 //#define SHT40_READ_SERIAL      0x89
 //#define SHT40_I2C_TIMEOUT 1000 /* 100 ms */
@@ -41,6 +43,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
 #define FIVE_SECONDS_MS 5000
 /* USER CODE END PD */
 
@@ -53,6 +56,9 @@
 I2C_HandleTypeDef hi2c2;
 
 /* USER CODE BEGIN PV */
+BMP280_HandleTypedef bmp280;
+
+float pressure, temperature, humidity;
 
 /* USER CODE END PV */
 
@@ -105,12 +111,30 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_GPIO_WritePin(GPIOA,GPIO_PIN_9,GPIO_PIN_SET);
   //HAL_GPIO_WritePin(GPIOA,GPIO_PIN_9,GPIO_PIN_RESET);
-  HAL_StatusTypeDef status = LM75ADP_conf(&hi2c2, LM75ADP_I2C_TIMEOUT);
-  bool process = true;
+  Sensor_Data sData;
+  SHT40_Measurement measurement;
+  LM75_Data result;
 
-  if (status != HAL_OK) {
-	process = false;
+  if (LM75ADP_conf(&hi2c2, LM75ADP_I2C_TIMEOUT) != HAL_OK) {
+	  sData.Okay = false;
   }
+
+  uint32_t sht40_serial;
+  if (SHT40_ReadSerial(&hi2c2, &sht40_serial) != HAL_OK ) {
+	  sData.Okay = false;
+  }
+
+  bmp280_init_default_params(&bmp280.params);
+  bmp280.addr = BMP280_I2C_ADDRESS_0;
+  bmp280.i2c = &hi2c2;
+  int try_count = 0;
+
+  while (!bmp280_init(&bmp280, &bmp280.params) && sData.Okay) {
+	  sData.Okay = (try_count++ < 5 );
+	  HAL_Delay(FIVE_SECONDS_MS);
+  }
+  //bool bme280p = bmp280.id == BME280_CHIP_ID;
+
   HAL_Delay(FIVE_SECONDS_MS);
   /* USER CODE END 2 */
 
@@ -119,19 +143,33 @@ int main(void)
 
   // Set PA9 to HIGH
 
-  while (process)
+  while (sData.Okay)
   {
-	  	LM75ADP_Data result;
-	  	status = LM75ADP_read(&hi2c2, &result, LM75ADP_I2C_TIMEOUT);
-		if (status != HAL_OK) {
-			process = false;
-		} else {
-			HAL_Delay(FIVE_SECONDS_MS);
-		}
+	  // Temporary code will move to Lora network just need to import and get it working .... hopefully
 
-					  //HAL_StatusTypeDef st_tx = HAL_I2C_Master_Transmit(&hi2c2, SHT40_I2C_ADDR, &command, 1, SHT40_I2C_TIMEOUT);
-	  //HAL_StatusTypeDef st_rx = HAL_I2C_Master_Receive(&hi2c2, SHT40_I2C_ADDR, response, SHT40_I2C_RESP_LEN, SHT40_I2C_TIMEOUT);
 
+	  if (LM75ADP_read(&hi2c2, &result, LM75ADP_I2C_TIMEOUT) != HAL_OK) {
+		sData.Okay = false;
+	  } else {
+		sData.LM75ADP_f_temperature = result.f_temp;
+	  }
+
+	  if( SHT40_Measure(&hi2c2, &measurement, MED_PRECISION) != HAL_OK ) {
+		sData.Okay = false;
+	  } else {
+		sData.sht40_f_relhumidity = measurement.rel_humidity;
+		sData.sht40_f_temperature = measurement.temperature;
+	  }
+
+	  if (!bmp280_read_float(&bmp280, &temperature, &pressure, &humidity)) {
+		sData.Okay = false;
+	  } else {
+		sData.BMP280_f_humidity = humidity;
+		sData.BMP280_f_pressure = pressure;
+		sData.BMP280_f_temperature = temperature;
+	  }
+
+	  HAL_Delay(FIVE_SECONDS_MS);
 
     /* USER CODE END WHILE */
 

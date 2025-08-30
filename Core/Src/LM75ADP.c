@@ -52,7 +52,7 @@ HAL_StatusTypeDef LM75ADP_conf(I2C_HandleTypeDef *hi2c, uint32_t Timeout){
 /*
  * Read Temp Sensor
  */
-HAL_StatusTypeDef LM75ADP_read(I2C_HandleTypeDef *hi2c, LM75ADP_Data *result, uint32_t Timeout){
+HAL_StatusTypeDef LM75ADP_read(I2C_HandleTypeDef *hi2c, LM75_Data *result, uint32_t Timeout){
 	static uint8_t command[1] = {0};
 	command[0] = LM75ADP_Reg_Temp;
 	uint16_t Size = sizeof(command);

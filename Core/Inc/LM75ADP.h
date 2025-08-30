@@ -32,14 +32,15 @@
 /*
  * Result/Measurement Struct
  */
-typedef struct {
+struct sLM75 {
     /* Temp in Celsius */
     float f_temp;
     uint16_t i_temp;
     HAL_StatusTypeDef st_tx;
     HAL_StatusTypeDef st_rx;
 
-} LM75ADP_Data;
+};
+typedef struct sLM75 LM75_Data;
 
 
 /*
@@ -50,6 +51,6 @@ HAL_StatusTypeDef LM75ADP_conf(I2C_HandleTypeDef* hi2c, uint32_t Timeout);
 /*
  * Read Temp Sensor
  */
-HAL_StatusTypeDef LM75ADP_read(I2C_HandleTypeDef* hi2c, LM75ADP_Data* result, uint32_t Timeout);
+HAL_StatusTypeDef LM75ADP_read(I2C_HandleTypeDef* hi2c, LM75_Data* result, uint32_t Timeout);
 
 #endif /* INC_LM75ADP_H */

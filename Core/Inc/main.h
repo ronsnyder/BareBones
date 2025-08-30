@@ -31,11 +31,26 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdint.h>
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+/*
+ * Result/Measurement Struct
+ */
+typedef struct {
+		/* Temp in Celsius */
+    float LM75ADP_f_temperature;
+    float sht40_f_temperature;
+    float sht40_f_relhumidity;
+    float BMP280_f_temperature;
+    float BMP280_f_pressure;
+    float BMP280_f_humidity;
+    bool Okay;
+} Sensor_Data;
+
 
 /* USER CODE END ET */
 
